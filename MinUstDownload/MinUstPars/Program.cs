@@ -276,7 +276,10 @@ namespace MinUstPars
         private static void browser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
             var webBrowser1 = sender as WebBrowser;
-         
+            int cntDownloaded = 0;
+            int cntErrors = 0;
+            int cntSkipped = 0;
+
             if (webBrowser1.ReadyState != WebBrowserReadyState.Complete)
             {
 
@@ -413,12 +416,12 @@ namespace MinUstPars
                             rf.period = obj_f.year;
 
 
-                           // string urlCreatePdf = @"http://unro.minjust.ru/NKOReports.aspx?mode=show_pdf_report&id=" + idexReport;
+                            // string urlCreatePdf = @"http://unro.minjust.ru/NKOReports.aspx?mode=show_pdf_report&id=" + idexReport;
 
                             if (checkInIndex(idexReport, lrf) < 0)
                             {
                                 //lrf.Add(rf);
-                                Console.Write("|");
+                                Console.Write("|"); 
                                 try
                                 {
                                     //runCheckAndCreatePdf(urlCreatePdf);
@@ -441,19 +444,28 @@ namespace MinUstPars
                                         rf.pathPdf = directory + @"\" + idexReport + ".pdf";
                                         lrf.Add(rf);
                                         addToLog("[" + DateTime.Now.ToString() + "] Загружен отчет №" + idexReport.ToString() + " [" + rf.urlPdf + "]");
+                                        cntDownloaded++;
+                                        if ((cntDownloaded % 50)==0)
+                                        {
+                                            idx.indexList = lrf;
+                                            SaveXml(idx, obj_f.pathIndex);
+                                        }
                                     }
                                 }
                                 catch (Exception ex)
                                 {
                                     addToLog("["+DateTime.Now.ToString() + "] Ошибка загрузки:" + ex.Message + " [" + rf.urlPdf + "]");
+                                    cntErrors++;
                                 }
+                            } else
+                            {
+                                Console.Write(".");
+                                cntSkipped++;
                             }
-                           
                         }
                     }
 
                 idx.indexList = lrf;
-                
                 SaveXml(idx, obj_f.pathIndex);
 
                 int cnt = (ixf != null) ? ixf.indexList.Count - lrf.Count : lrf.Count;
@@ -461,7 +473,11 @@ namespace MinUstPars
                 
                 a++;
                 Console.WriteLine("");
-                Console.WriteLine("Процесс завершен. Завершение работы приложения...");
+                Console.WriteLine("Процесс завершен.");
+                Console.WriteLine("Загружено " + cntDownloaded.ToString());
+                Console.WriteLine("Пропущено " + cntSkipped.ToString());
+                Console.WriteLine("Ошибок    " + cntErrors.ToString());
+                Console.WriteLine("Завершение работы приложения...");
                 Thread.Sleep(3000); 
                 Application.ExitThread();
                 Application.Exit();
