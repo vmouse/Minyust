@@ -289,7 +289,7 @@ namespace MinUstPdf
                 pb.Maximum = files.Count;
                 pb.Step = 1;
                 ReportFile rf = null;
-                richTextBox1.Clear();
+//                richTextBox1.Clear();
 
                 //csv:  form; year; org; adres; inn; kpp; direktor + dolzh; buh; date; summ1; summ2;
 
@@ -305,6 +305,8 @@ namespace MinUstPdf
 
                 bool _add = false;
 
+                PDFParser pf = new PDFParser();
+
                 foreach (string filename in files)
                 {
                     if (listReports.Count > 0)
@@ -317,9 +319,9 @@ namespace MinUstPdf
                     pb.Value += 1;
                     try
                     {
-                        PDFParser pf = new PDFParser();
                         int tot = 0;
                         string s = pf.ExtractText(filename, out tot);
+                        
 
                         s = s.Replace('\n', '_');
 
@@ -333,7 +335,7 @@ namespace MinUstPdf
 
                         csv_line += "=\"" + frm + "\";";
 
-                        richTextBox1.AppendText("Форма документа: " + frm + '\n');
+//                        richTextBox1.AppendText("Форма документа: " + frm + '\n');
 
                         if (frm.Equals(viewReport.Text))
                         {
@@ -341,7 +343,7 @@ namespace MinUstPdf
                             int za = s.IndexOf("за ");
 
                             string year = s.Substring(za + 3, 4);
-                            richTextBox1.AppendText("Год документа: " + year + '\n');
+//                            richTextBox1.AppendText("Год документа: " + year + '\n');
 
                             csv_line += "=\"" + year + "\";";
 
@@ -350,7 +352,7 @@ namespace MinUstPdf
 
                             string naminc = s.Substring(za, eid - za);
 
-                            richTextBox1.AppendText("Организация: " + GetWithIn(naminc) + '\n');
+//                            richTextBox1.AppendText("Организация: " + GetWithIn(naminc) + '\n');
                             csv_line += GetWithIn(naminc) + ";";
 
                             int adid = s.IndexOf(@"организации\))Tj", eid) + 16;
@@ -358,7 +360,7 @@ namespace MinUstPdf
 
                             string addr = s.Substring(adid, eadid - adid);
 
-                            richTextBox1.AppendText("Адрес: " + GetWithIn(addr) + '\n');
+//                            richTextBox1.AppendText("Адрес: " + GetWithIn(addr) + '\n');
 
                             addr = GetWithIn(addr);
                             csv_line += "=\"" + addr + "\";";
@@ -381,14 +383,14 @@ namespace MinUstPdf
 
                             csv_line += "=\"" + ogr + "\";";
 
-                            richTextBox1.AppendText("ОГРН: " + ogr + '\n');
+//                            richTextBox1.AppendText("ОГРН: " + ogr + '\n');
 
                             int i_egrl = s.IndexOf("(ЕГРЮЛ)Tj", eoid) + 9;
                             int e_egrl = s.IndexOf("Q_q", i_egrl);
 
                             string s_d_egrul = s.Substring(i_egrl, e_egrl - i_egrl);
 
-                            richTextBox1.AppendText("ДАТА ЕГРЮЛ: " + GetWithIn(s_d_egrul) + '\n');
+//                            richTextBox1.AppendText("ДАТА ЕГРЮЛ: " + GetWithIn(s_d_egrul) + '\n');
 
                             csv_line += "=\"" + GetWithIn(s_d_egrul) + "\";";
 
@@ -396,14 +398,14 @@ namespace MinUstPdf
                             int einn = s.IndexOf("F1 11 Tf", inn);
 
                             string sinn = s.Substring(inn, einn - inn);
-                            richTextBox1.AppendText("ИНН: " + GetWithIn(sinn) + '\n');
+//                            richTextBox1.AppendText("ИНН: " + GetWithIn(sinn) + '\n');
 
                             csv_line += "=\"" + GetWithIn(sinn) + "\";";
 
                             int ekpp = s.IndexOf("F1 11 Tf", einn + 1);
                             string kpp = s.Substring(einn, ekpp - einn).Replace("/", "");
 
-                            richTextBox1.AppendText("КПП: " + GetWithIn(kpp) + '\n');
+//                            richTextBox1.AppendText("КПП: " + GetWithIn(kpp) + '\n');
 
                             csv_line += "=\"" + GetWithIn(kpp) + "\";";
 
@@ -415,7 +417,7 @@ namespace MinUstPdf
 
                             string rt = s.Substring(sone, stwo - sone);
                             rt = clearRegX(rt);
-                            richTextBox1.AppendText("Сумма 1.1: " + getSumm(rt).ToString() + '\n');
+//                            richTextBox1.AppendText("Сумма 1.1: " + getSumm(rt).ToString() + '\n');
 
                             sumall += getSumm(rt);
 
@@ -424,7 +426,7 @@ namespace MinUstPdf
                             int stri = s.IndexOf("Q_q_2 J_0 G_Q_q_Q_q", stwo);
                             string wt = s.Substring(stwo + 7, stri - stwo - 7);
                             wt = clearRegX(wt);
-                            richTextBox1.AppendText("Сумма 1.2: " + getSumm(wt).ToString() + '\n');
+//                            richTextBox1.AppendText("Сумма 1.2: " + getSumm(wt).ToString() + '\n');
 
                             sumall += getSumm(wt);
                             //1.3
@@ -432,13 +434,13 @@ namespace MinUstPdf
                             int otwo = s.IndexOf("Q_q_2 J_0 G_Q_q_Q_q", stri);
                             string tt = s.Substring(stri + 7, otwo - stri - 7);
                             tt = clearRegX(tt);
-                            richTextBox1.AppendText("Сумма 1.3: " + getSumm(tt).ToString() + '\n');
+//                            richTextBox1.AppendText("Сумма 1.3: " + getSumm(tt).ToString() + '\n');
 
                             sumall += getSumm(tt);
 
-                            richTextBox1.AppendText("Общая сумма по разделу 1: " + sumall.ToString() + '\n');
+//                            richTextBox1.AppendText("Общая сумма по разделу 1: " + sumall.ToString() + '\n');
 
-                            csv_line += "=\"" + sumall.ToString() + "\";";
+                            csv_line += "=" + sumall.ToString() + ";";
 
                             //////////Раздел 2////////////
 
@@ -447,7 +449,7 @@ namespace MinUstPdf
                             string s2s = s.Substring(i2s, ei2s - i2s);
                             s2s = clearRegX(s2s);
 
-                            richTextBox1.AppendText("Общая сумма по разделу 2: " + getSumm(s2s).ToString() + '\n');
+//                            richTextBox1.AppendText("Общая сумма по разделу 2: " + getSumm(s2s).ToString() + '\n');
 
                             sumall += getSumm(s2s);
 
@@ -457,7 +459,7 @@ namespace MinUstPdf
                                 _add = false;
                             }
 
-                            csv_line += "=\"" + getSumm(s2s).ToString() + "\";";
+                            csv_line += "=" + getSumm(s2s).ToString() + ";";
 
                             //ФИО Руководителей
 
@@ -468,7 +470,7 @@ namespace MinUstPdf
                             sfio = clearRegX(sfio);
                             sfio = GetWithIn(sfio);
 
-                            richTextBox1.AppendText(getDir(sfio) + " == " + getDolz(sfio) + '\n');
+//                            richTextBox1.AppendText(getDir(sfio) + " == " + getDolz(sfio) + '\n');
 
                             csv_line += "=\"" + sfio + "\";";
 
@@ -478,7 +480,7 @@ namespace MinUstPdf
 
                             sdat = GetWithIn(sdat);
 
-                            richTextBox1.AppendText(sdat + '\n');
+//                            richTextBox1.AppendText(sdat + '\n');
                             csv_line += "=\"" + sdat + "\";";
 
                             //Бухгалтер
@@ -493,7 +495,7 @@ namespace MinUstPdf
 
                             csv_line += "=\"" + sbuh + "\";";
 
-                            richTextBox1.AppendText(getDir(sbuh) + " == " + getDolz(sbuh));
+//                            richTextBox1.AppendText(getDir(sbuh) + " == " + getDolz(sbuh));
 
                             csv_line += "=\"" + filename + "\";";
 
