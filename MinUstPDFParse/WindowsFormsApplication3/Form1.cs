@@ -280,6 +280,17 @@ namespace MinUstPdf
 
             return ret;
         }
+
+        private string FormatCSV(string param, char type, bool end = false) // t - text, d - date, n - number
+        {
+            
+            switch (type) {
+                case 'x': param = "\"" + param.Replace("\"", "\"\"") + "\"";
+                    break;
+            }
+            return param + ((end)?"":";");
+        }
+
         private void startParse()
         {
             if (pathCSV.Text.Length > 1 && pathPDF.Text.Length > 1 && files.Count > 0)
@@ -296,11 +307,11 @@ namespace MinUstPdf
                 List<string> fcsv = new List<string>();
                 if (listReports.Count < 0)
                 {
-                    fcsv.Add("Вид Отчета; Год отчета; Организация; Адрес; Moscow; ОГРН; Дата ЕГРЮЛ; ИНН; КПП; Сумма раздела 1; Сумма раздела 2; Директор; Дата отчета; Бухгалтер; Имя файла;");
+                    fcsv.Add("Вид Отчета; Год отчета; Организация; Адрес; Moscow; ОГРН; Дата ЕГРЮЛ; ИНН; КПП; Сумма раздела 1; Сумма раздела 2; Директор; Дата отчета; Бухгалтер; Имя файла; Дата создания файла");
                 }
                 else
                 {
-                    fcsv.Add("Вид Отчета; Год отчета; Организация; Адрес; Moscow; ОГРН; Дата ЕГРЮЛ; ИНН; КПП; Сумма раздела 1; Сумма раздела 2; Директор; Дата отчета; Бухгалтер; Имя файла; НаименованиеНКО; Учетный номер; ОГРН; Форма; Вид отчета; Период;");
+                    fcsv.Add("Вид Отчета; Год отчета; Организация; Адрес; Moscow; ОГРН; Дата ЕГРЮЛ; ИНН; КПП; Сумма раздела 1; Сумма раздела 2; Директор; Дата отчета; Бухгалтер; Имя файла; Дата создания файла; НаименованиеНКО; Учетный номер; ОГРН; Форма; Вид отчета; Период;");
                 }
 
                 bool _add = false;
@@ -333,7 +344,7 @@ namespace MinUstPdf
                         string frm = s.Substring(ifrm, efrm - ifrm);
                         frm = GetWithIn(frm);
 
-                        csv_line += "=\"" + frm + "\";";
+                        csv_line += FormatCSV(frm, 't');
 
 //                        richTextBox1.AppendText("Форма документа: " + frm + '\n');
 
@@ -345,7 +356,7 @@ namespace MinUstPdf
                             string year = s.Substring(za + 3, 4);
 //                            richTextBox1.AppendText("Год документа: " + year + '\n');
 
-                            csv_line += "=\"" + year + "\";";
+                            csv_line += FormatCSV(year, 'n');
 
 
                             int eid = s.IndexOf(@"(\(полное", za) - 9;
@@ -353,7 +364,7 @@ namespace MinUstPdf
                             string naminc = s.Substring(za, eid - za);
 
 //                            richTextBox1.AppendText("Организация: " + GetWithIn(naminc) + '\n');
-                            csv_line += GetWithIn(naminc) + ";";
+                            csv_line += FormatCSV(GetWithIn(naminc),'t');
 
                             int adid = s.IndexOf(@"организации\))Tj", eid) + 16;
                             int eadid = s.IndexOf(@"(\(адрес", adid) - 8;
@@ -363,15 +374,15 @@ namespace MinUstPdf
 //                            richTextBox1.AppendText("Адрес: " + GetWithIn(addr) + '\n');
 
                             addr = GetWithIn(addr);
-                            csv_line += "=\"" + addr + "\";";
+                            csv_line += FormatCSV(addr, 't');
 
                             if (addr.IndexOf("осква") > 0)
                             {
-                                csv_line += "=\"1\";";
+                                csv_line += FormatCSV("1",'n');
                             }
                             else
                             {
-                                csv_line += "=\"0\";";
+                                csv_line += FormatCSV("0",'n');
                             }
 
                             int oid = s.IndexOf("(ОГРН:)Tj", eadid) + 8;
@@ -381,7 +392,7 @@ namespace MinUstPdf
 
                             string ogr = GetWithIn(textOgrn);
 
-                            csv_line += "=\"" + ogr + "\";";
+                            csv_line += FormatCSV(ogr, 't');
 
 //                            richTextBox1.AppendText("ОГРН: " + ogr + '\n');
 
@@ -392,7 +403,7 @@ namespace MinUstPdf
 
 //                            richTextBox1.AppendText("ДАТА ЕГРЮЛ: " + GetWithIn(s_d_egrul) + '\n');
 
-                            csv_line += "=\"" + GetWithIn(s_d_egrul) + "\";";
+                            csv_line += FormatCSV(GetWithIn(s_d_egrul),'d');
 
                             int inn = s.IndexOf("(ИНН/КПП:)Tj", eoid) + 12;
                             int einn = s.IndexOf("F1 11 Tf", inn);
@@ -400,14 +411,14 @@ namespace MinUstPdf
                             string sinn = s.Substring(inn, einn - inn);
 //                            richTextBox1.AppendText("ИНН: " + GetWithIn(sinn) + '\n');
 
-                            csv_line += "=\"" + GetWithIn(sinn) + "\";";
+                            csv_line += FormatCSV(GetWithIn(sinn), 't');
 
                             int ekpp = s.IndexOf("F1 11 Tf", einn + 1);
                             string kpp = s.Substring(einn, ekpp - einn).Replace("/", "");
 
 //                            richTextBox1.AppendText("КПП: " + GetWithIn(kpp) + '\n');
 
-                            csv_line += "=\"" + GetWithIn(kpp) + "\";";
+                            csv_line += FormatCSV(GetWithIn(kpp),'t');
 
                             double sumall = 0;
 
@@ -440,7 +451,7 @@ namespace MinUstPdf
 
 //                            richTextBox1.AppendText("Общая сумма по разделу 1: " + sumall.ToString() + '\n');
 
-                            csv_line += "=" + sumall.ToString() + ";";
+                            csv_line += FormatCSV(sumall.ToString(), 'n');
 
                             //////////Раздел 2////////////
 
@@ -459,7 +470,7 @@ namespace MinUstPdf
                                 _add = false;
                             }
 
-                            csv_line += "=" + getSumm(s2s).ToString() + ";";
+                            csv_line += FormatCSV(getSumm(s2s).ToString(), 'n');
 
                             //ФИО Руководителей
 
@@ -472,7 +483,7 @@ namespace MinUstPdf
 
 //                            richTextBox1.AppendText(getDir(sfio) + " == " + getDolz(sfio) + '\n');
 
-                            csv_line += "=\"" + sfio + "\";";
+                            csv_line += FormatCSV(sfio, 't');
 
                             //дата отчета
                             int edat = s.IndexOf(@"(\(дата\", efio + 2) - 2;
@@ -481,7 +492,7 @@ namespace MinUstPdf
                             sdat = GetWithIn(sdat);
 
 //                            richTextBox1.AppendText(sdat + '\n');
-                            csv_line += "=\"" + sdat + "\";";
+                            csv_line += FormatCSV(sdat, 'd');
 
                             //Бухгалтер
 
@@ -493,25 +504,27 @@ namespace MinUstPdf
                             sbuh = clearRegX(sbuh);
                             sbuh = GetWithIn(sbuh);
 
-                            csv_line += "=\"" + sbuh + "\";";
+                            csv_line += FormatCSV(sbuh, 't');
 
 //                            richTextBox1.AppendText(getDir(sbuh) + " == " + getDolz(sbuh));
 
-                            csv_line += "=\"" + filename + "\";";
+                            csv_line += FormatCSV(filename, 't');
+
+                            csv_line += FormatCSV(File.GetCreationTime(filename).ToString("dd.MM.yyyy"), 'd'); // filedate
 
                             if (rf != null)
                             {
-                                csv_line += rf.nameNKO + ";";
-                                csv_line += "=\"" + rf.indexFile + "\";";
-                                csv_line += "=\"" + rf.ogrn + "\";";
-                                csv_line += "=\"" + rf.formNKO + "\";";
-                                csv_line += "=\"" + rf.vid + "\";";
-                                csv_line += "=\"" + rf.period + "\";";
+                                csv_line += FormatCSV(rf.nameNKO, 't');
+                                csv_line += FormatCSV(rf.indexFile, 't');
+                                csv_line += FormatCSV(rf.ogrn, 't');
+                                csv_line += FormatCSV(rf.formNKO, 't');
+                                csv_line += FormatCSV(rf.vid, 't');
+                                csv_line += FormatCSV(rf.period, 'n', true);
                             }
                         }
                         if (_add)
                         {
-                            fcsv.Add(csv_line);
+                            fcsv.Add(csv_line); 
                         }
                     }
                     catch { }
